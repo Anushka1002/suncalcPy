@@ -55,7 +55,10 @@ def julianCycle(d, lw):
 	return round(d - J0 - lw / (2 * PI))
 
 def approxTransit(Ht, lw, n):
-	return J0 + (Ht + lw) / (2 * PI) + n
+	if Ht is not None:
+		return J0 + (Ht + lw) / (2 * PI) + n
+	else:
+		return None
 
 def solarTransitJ(ds, M, L):
 	return J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L)
@@ -84,6 +87,8 @@ def sunCoords(d):
 def getSetJ(h, lw, phi, dec, n, M, L):
     w = hourAngle(h, phi, dec)
     a = approxTransit(w, lw, n)
+    if a is None:
+	return None
     return solarTransitJ(a, M, L)
 
 # geocentric ecliptic coordinates of the moon
@@ -134,6 +139,8 @@ def getTimes(date, lat, lng):
     for i in range(0, len(times)):
 	time = times[i]
 	Jset = getSetJ(time[0] * rad, lw, phi, dec, n, M, L);
+	if Jset is None:
+		return result
 	Jrise = Jnoon - (Jset - Jnoon);
 	result[time[1]] = fromJulian(Jrise).strftime('%Y-%m-%d %H:%M:%S');
 	result[time[2]] = fromJulian(Jset).strftime('%Y-%m-%d %H:%M:%S');
@@ -198,7 +205,7 @@ def getMoonTimes(date, lat, lng):
 
     if (not rise and not sett):
         value = 'alwaysUp' if ye > 0 else 'alwaysDown'
-        result[value] = true
+        result[value] = True
 
     return result
 
